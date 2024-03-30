@@ -12,6 +12,13 @@ namespace Lumpn.Matomo
     {
         private static readonly Dictionary<string, string> emptyParameters = new Dictionary<string, string>();
 
+            /*
+            e_c — The event category. Must not be empty. (eg. Videos, Music, Games...)
+e_a — The event action. Must not be empty. (eg. Play, Pause, Duration, Add Playlist, Downloaded, Clicked...)
+e_n — The event name. (eg. a Movie name, or Song name, or File name...)
+e_v — The event value. Must be a float or integer value (numeric), not a string.
+Note: Trailing and leading whitespaces will be trimmed from parameter values for e_c, e_a and e_n. Strings filled with whitespaces will be considered as (invalid) empty values.
+            */
         public static IEnumerator RecordSystemInfo(this MatomoSession session)
         {
             var parameters = new Dictionary<string, string>
@@ -22,19 +29,51 @@ namespace Lumpn.Matomo
                 { "res", string.Format("{0}x{1}", Screen.width, Screen.height)},
                 { "dimension1", SystemInfo.processorType},
                 { "dimension2", SystemInfo.graphicsDeviceName},
+                { "e_c",  "SystemInfo" },
+                { "e_a", "initial" }
             };
 
-            return session.Record("SystemInfo", 0f, parameters);
+            using (var request = session.CreateWebRequest(parameters, false))
+            {
+                yield return request.SendWebRequest();
+
+                Debug.Assert(request.responseCode == 204, request.error);
+            }
         }
 
-        public static IEnumerator RecordEvent(this MatomoSession session, string eventName, float eventTime)
+        public static IEnumerator SendCustomEvent(this MatomoSession session, string category, string action, string name = null, string value = null, bool debug = false)
         {
-            return session.Record(eventName, eventTime, emptyParameters);
+            var parameters = new Dictionary<string, string>
+            {
+                { "e_c", category },
+                { "e_a", action }
+            };
+            if(name != null)
+            {
+                parameters["e_n"] = name;
+            }
+            if(value != null)
+            {
+                parameters["e_v"] = value;
+            }
+
+            using (var request = session.CreateWebRequest(parameters, debug))
+            {
+                yield return request.SendWebRequest();
+
+                Debug.Assert(request.responseCode == 204, request.error);
+            }
         }
 
-        public static IEnumerator Record(this MatomoSession session, string page, float time, IReadOnlyDictionary<string, string> parameters)
+        public static IEnumerator SendPageView(this MatomoSession session, string url, bool debug = false)
         {
-            using (var request = session.CreateWebRequest(page, (int)time, parameters, false))
+            var parameters = new Dictionary<string, string>
+            {
+                { "url", session.websiteUrl + url },
+                { "action_name", url }
+            };
+
+            using (var request = session.CreateWebRequest(parameters, debug))
             {
                 yield return request.SendWebRequest();
 

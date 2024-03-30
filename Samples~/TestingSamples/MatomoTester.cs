@@ -38,7 +38,8 @@ namespace Lumpn.Matomo.Samples
             }
 
             var dict = parameters.ToDictionary(p => p.key, p => p.value);
-            using (var request = session.CreateWebRequest(eventName, 0, dict, true))
+            dict["url"] = eventName;
+            using (var request = session.CreateWebRequest(dict, true))
             {
                 Debug.Log(request.url);
                 yield return request.SendWebRequest();

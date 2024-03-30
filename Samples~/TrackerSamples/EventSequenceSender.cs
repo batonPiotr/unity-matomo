@@ -26,7 +26,7 @@ namespace Lumpn.Matomo.Samples
             foreach (var eventName in events)
             {
                 Debug.LogFormat(this, "Recording event '{0}'", eventName);
-                yield return session.RecordEvent(eventName, Time.time);
+                yield return session.SendPageView(eventName);
                 yield return new WaitForSeconds(Random.Range(0.5f, 1.5f));
             }
         }

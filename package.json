@@ -1,6 +1,6 @@
 {
   "name": "de.lumpn.unity-matomo",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "displayName": "Lumpn Matomo Analytics",
   "description": "Matomo Analytics tracker for Unity.",
   "dependencies": {

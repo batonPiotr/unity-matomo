@@ -15,6 +15,7 @@ namespace Lumpn.Matomo
         private readonly Random random = new Random();
         private readonly StringBuilder stringBuilder = new StringBuilder();
         private readonly string baseUrl;
+        public readonly string websiteUrl;
 
         public static MatomoSession Create(string matomoUrl, string websiteUrl, int websiteId, byte[] userId)
         {
@@ -25,38 +26,33 @@ namespace Lumpn.Matomo
             sb.Append("&_id=");
             HexUtils.AppendHex(sb, userId);
 
-            sb.Append("&url=");
-            sb.Append(EscapeDataString(websiteUrl));
-            sb.Append(EscapeDataString("/"));
-
             var url = sb.ToString();
-            return new MatomoSession(url);
+            return new MatomoSession(url, websiteUrl);
         }
 
-        private MatomoSession(string baseUrl)
+        private MatomoSession(string baseUrl, string websiteUrl)
         {
             this.baseUrl = baseUrl;
+            this.websiteUrl = websiteUrl;
         }
 
-        public UnityWebRequest CreateWebRequest(string page, int time, IReadOnlyDictionary<string, string> parameters, bool debug)
+        public UnityWebRequest CreateWebRequest(IReadOnlyDictionary<string, string> parameters, bool debug)
         {
-            var url = BuildUrl(page, time, parameters, debug);
+            var url = BuildUrl(parameters, debug);
+
+            UnityEngine.Debug.Log("SENDING URL: " + url);
 
             var downloadHandler = debug ? new DownloadHandlerBuffer() : null;
             var request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, downloadHandler, null);
             return request;
         }
 
-        private string BuildUrl(string page, int time, IReadOnlyDictionary<string, string> parameters, bool debug)
+        private string BuildUrl(IReadOnlyDictionary<string, string> parameters, bool debug)
         {
             var sb = stringBuilder;
             sb.Clear();
 
             sb.Append(baseUrl);
-            sb.Append(EscapeDataString(page));
-
-            sb.Append("&pf_srv=");
-            sb.Append(time);
 
             foreach (var parameter in parameters)
             {
