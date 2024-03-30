@@ -39,9 +39,6 @@ namespace Lumpn.Matomo
         public UnityWebRequest CreateWebRequest(IReadOnlyDictionary<string, string> parameters, bool debug)
         {
             var url = BuildUrl(parameters, debug);
-
-            UnityEngine.Debug.Log("SENDING URL: " + url);
-
             var downloadHandler = debug ? new DownloadHandlerBuffer() : null;
             var request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, downloadHandler, null);
             return request;

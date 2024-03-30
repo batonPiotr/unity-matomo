@@ -19,7 +19,7 @@ e_n — The event name. (eg. a Movie name, or Song name, or File name...)
 e_v — The event value. Must be a float or integer value (numeric), not a string.
 Note: Trailing and leading whitespaces will be trimmed from parameter values for e_c, e_a and e_n. Strings filled with whitespaces will be considered as (invalid) empty values.
             */
-        public static IEnumerator RecordSystemInfo(this MatomoSession session)
+        public static IEnumerator RecordSystemInfo(this MatomoSession session, string customCategory, string customAction)
         {
             var parameters = new Dictionary<string, string>
             {
@@ -29,8 +29,8 @@ Note: Trailing and leading whitespaces will be trimmed from parameter values for
                 { "res", string.Format("{0}x{1}", Screen.width, Screen.height)},
                 { "dimension1", SystemInfo.processorType},
                 { "dimension2", SystemInfo.graphicsDeviceName},
-                { "e_c",  "SystemInfo" },
-                { "e_a", "initial" }
+                { "e_c", customCategory ?? "SystemInfo" },
+                { "e_a", customAction ?? "initial" }
             };
 
             using (var request = session.CreateWebRequest(parameters, false))
